@@ -1,0 +1,43 @@
+socket.send('data', {
+	moves: [
+		{x: 10, y: 10},
+		{x: 11, y: 10}
+	]
+});
+
+socket.on('data', function(data) {
+	this.data = data;
+});
+
+
+
+
+
+
+
+// server side
+genericRule = function(conditions, error, callback, data) {
+	if (test(conditions)) {
+		callback(data);
+	}
+	
+	if (error) {
+		error(data);
+	}
+};
+
+rule = curry(genericRule,
+	[
+		function(data) {
+			if (data) {
+				return true;
+			}
+			
+			return false;
+		}
+	],
+	function(data) {
+		console.log('failed dis', data);
+	});
+
+socket.on('data', curry(rule)(callback));

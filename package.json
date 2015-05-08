@@ -1,0 +1,21 @@
+{
+  "name": "socket_with_rules",
+  "version": "0.0.1",
+  "description": "Used to create events & rules for socket.io, and the rules can be used both client side and server side",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "browserify": "node_modules/browserify/bin/cmd.js client/main.js | node_modules/uglify-js/bin/uglifyjs > public/js/bundle.js",
+    "watch": "node_modules/watchify/bin/cmd.js client/main.js -o public/js/bundle.js --debug --verbose"
+  },
+  "author": "Jona Ekenberg <jona@dsv.su.se>",
+  "license": "ISC",
+  "dependencies": {
+    "browserify": "^10.1.3",
+    "express": "^4.12.3",
+    "sai_curry": "^1.0.0",
+    "socket.io": "latest",
+    "watchify": "^3.2.1",
+    "socket.io-client": "latest"
+  }
+}
