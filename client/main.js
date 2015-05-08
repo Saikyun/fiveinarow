@@ -1,8 +1,10 @@
 var socketio = require('socket.io-client');
 
 var socket = socketio();
-var test = require('./../rule_checker/test.js');
+var test = require('rule_checker/test.js');
 var rules = require('./../game_specific/rules.js');
+
+window.curry = require('sai_curry');
 
 window.socket = socket;
 
@@ -25,9 +27,9 @@ function makeMove(x, y, player) {
 }
 
 function runEvent(event, socket, obj) {
-	if (test(rules[event], obj)) {
+	//if (test(rules[event], obj)) {
 		socket.emit(event, obj);
-	}
+	//}
 }
 
 window.makeMove = makeMove;

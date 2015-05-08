@@ -2,7 +2,7 @@
 
 var app = require('express')();
 var socketio = require('socket.io');
-var ruleChecker = require('./rule_checker');
+var ruleCheckerFactory = require('rule_checker');
 
 var curry = require('sai_curry');
 
@@ -33,7 +33,8 @@ io.on('connection', function(socket) {
 		}
 	);
 	var rules = require('./game_specific/rules.js');
-	var ruleChecker = require('./rule_checker')();
+	
+	var ruleChecker = ruleCheckerFactory();
 	
 	events.forEach(function(event) {
 		ruleChecker.addEvent(
