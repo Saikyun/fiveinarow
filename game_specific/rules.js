@@ -1,6 +1,6 @@
 'use strict';
 
-var isSet = require('./is_set.js');
+var isSet = require('sai_generic').isSet;
 var curry = require('sai_curry');
 
 var DEFINED_RULES = {
@@ -30,14 +30,16 @@ function areAttrsSet(attrs) {
 	};
 }
 
-function checkXY(move, error) {
+function xyLowerThanZero(move) {
 	if (move.x < 0 || move.y < 0) {
-		error('move.x or move.y is lower than zero');
 		return false;
 	}
 	
+	return true;
+}
+
+function xyHigherThanLimit(move) {
 	if (move.x >= DEFINED_RULES.width || move.y >= DEFINED_RULES.height) {
-		error('move.x or move.y is higher than width/height');
 		return false;
 	}
 	
@@ -48,7 +50,8 @@ var rules = {
 	move: [
 		curry(standard, isSet),
 		areAttrsSet(['x', 'y', 'player']),
-		checkXY
+		curry(standard, xyLowerThanZero),
+		curry(standard, xyHigherThanLimit)
 	]
 };
 

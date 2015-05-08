@@ -1,6 +1,6 @@
 'use strict';
 
-var isSet = require('./is_set.js');
+var isSet = require('sai_generic').isSet;
 
 function test(rules, obj, error) {
 	error = error || function(message) {

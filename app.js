@@ -2,8 +2,9 @@
 
 var app = require('express')();
 var socketio = require('socket.io');
-var loadEvents = require('./load_events.js');
-var events = require('./events.js');
+var ruleChecker = require('./rule_checker');
+
+var curry = require('sai_curry');
 
 app.get('/', function(req, res) {
 	res.sendFile(__dirname + '/public/index.html');
@@ -24,11 +25,26 @@ var moves = [];
 io.on('connection', function(socket) {
 	console.log('someone connected', socket.id);
 	
-	loadEvents(socket, events(function error(message) {
-		socket.emit('error_message', message);
-	},
-	function() { return moves; },
-	function(newMoves) { moves = newMoves; socket.emit('moves', {moves: moves} ); }));
+	var events = require('./game_specific/events.js')(
+		function() { return moves; },
+		function(newMoves) {
+			moves = newMoves;
+			socket.emit('moves', {moves: moves} );
+		}
+	);
+	var rules = require('./game_specific/rules.js');
+	var ruleChecker = require('./rule_checker')();
+	
+	events.forEach(function(event) {
+		ruleChecker.addEvent(
+			function(event, callback) { socket.on(event, callback); },
+			event,
+			rules[event.name], 
+			function error(message) {
+				socket.emit('error_message', message);
+			}
+		);
+	});
 	
 	socket.on('disconnect', function() {
 		console.log('someone disconnected', socket.id);
