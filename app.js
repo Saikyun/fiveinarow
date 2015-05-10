@@ -20,30 +20,34 @@ var server = app.listen(3000, function() {
 
 var io = socketio(server);
 
-var moves = [];
+var data = require('./game_specific/data.js');
 
 io.on('connection', function(socket) {
 	console.log('someone connected', socket.id);
+
+	socket.emit('moves', {moves: data.get('moves')} );
 	
 	var events = require('./game_specific/events.js')(
-		function() { return moves; },
+		function() { return data.get('moves'); },
 		function(newMoves) {
-			moves = newMoves;
-			socket.emit('moves', {moves: moves} );
+			data.set('moves', newMoves);
+			socket.emit('moves', {moves: data.get('moves')} );
 		}
 	);
+	
 	var rules = require('./game_specific/rules.js');
 	
 	var ruleChecker = ruleCheckerFactory();
 	
 	events.forEach(function(event) {
 		ruleChecker.addEvent(
-			function(event, callback) { socket.on(event, callback); },
 			event,
-			rules[event.name], 
+			rules[event.name],
+			function(event, callback) { socket.on(event, callback); },
 			function error(message) {
 				socket.emit('error_message', message);
-			}
+			},
+			data
 		);
 	});
 	
