@@ -32,11 +32,7 @@ function areAttrsSet(attrs) {
 }
 
 function xyLowerThanZero(move) {
-	if (move.x < 0 || move.y < 0) {
-		return false;
-	}
-	
-	return true;
+	return move.x >= 0 && move.y >= 0;
 }
 
 function xyHigherThanLimit(move, size, error) {
