@@ -75,7 +75,7 @@ function makeMove(x, y, player) {
 	
 	if (runEvent('move', socket, move)) {
 		var moves = data.get('moves');
-		moves.push(obj);
+		moves.push(move);
 		data.set('moves', moves);
 		
 		renderMoves(moves);
