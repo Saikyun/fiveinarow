@@ -14,8 +14,9 @@ app.get('/js/bundle.js', function(req, res) {
 	res.sendFile(__dirname + '/public/js/bundle.js');
 });
 
-var server = app.listen(3000, function() {
-	console.log('listening on 127.0.0.1:3000');
+var port = process.env.PORT || 3000;
+var server = app.listen(port, function() {
+	console.log('listening on 127.0.0.1:' + port);
 });
 
 var io = socketio(server);
