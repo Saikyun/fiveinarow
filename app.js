@@ -22,17 +22,33 @@ var io = socketio(server);
 
 var data = require('./game_specific/data.js');
 
+var sendMoves = function(socket, data, doSet) {
+	socket.emit('moves', { moves: data.get('moves') });
+			
+	var result = require('./game_specific/check_winner.js')(data.get('moves'));
+	
+	if (result === -1) {
+		console.log('it\'s a draw!');
+	} else if (result !== false) {
+		console.log('player %n won!', result);
+		socket.emit('winner', result);
+		
+		var timeout = setTimeout(function() { if (doSet) {data.set('moves', []);} sendMoves(socket, data, true); clearTimeout(timeout); }, 5000);
+	}
+}
+
 io.on('connection', function(socket) {
 	console.log('someone connected', socket.id);
 
-	socket.emit('moves', {moves: data.get('moves')} );
+	sendMoves(socket, data, false);
 	
 	var events = require('./game_specific/events.js')(
 		function() { return data.get('moves'); },
 		function(newMoves) {
 			data.set('moves', newMoves);
-			socket.emit('moves', {moves: data.get('moves')} );
-		}
+			sendMoves(socket, data, true);
+		},
+		socket
 	);
 	
 	var rules = require('./game_specific/rules.js');

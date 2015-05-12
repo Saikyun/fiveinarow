@@ -21,11 +21,45 @@ socket.on('moves', function(obj) {
 	renderMoves(data.get('moves'));
 });
 
+socket.on('winner', function(result) {
+	data.set('winner', result);
+	displayWinner('the winner is player ' + colors['player' + result] + '!!!! game restarts in 5 seconds');
+});
+
+var colors = {
+	player1: 'green',
+	player2: 'red',
+	empty: '#3c3c3c'
+}
+
 function renderMoves(moves) {
+	var board = [];
+	
+	var size = data.get('size');
+	
+	for (var i = 0; i < size.width * size.height; i++) {
+		board[i] = null;
+	}
+	
 	var html = '';
 	moves.forEach(function(move) {
-		html += '<div style="position: absolute; left: ' + move.x * 51 + 'px; top: ' + move.y * 51 + 'px; width: 50px; height: 50px; background-color: #00FF00;">';
-		html += move.player;
+		html += '<div style="background-color: ' + colors['player' + move.player] + ';position: absolute; left: ' + move.x * 51 + 'px; top: ' + move.y * 51 + 'px; width: 50px; height: 50px;">';
+		//html += move.player;
+		html += '</div>';
+		board[move.y * size.width + move.x] = move;
+	});
+	
+	board.forEach(function(move, i) {
+		if (move !== null) {
+			return;
+		}
+		
+		var x = i % size.width;
+		var y = Math.floor(i / size.width);
+		var player = moves.length === 0 || moves[moves.length - 1].player === 2 ? 1 : 2;
+		
+		html += '<div onclick="makeMove(' + x + ', ' + y + ', ' + player + ');" style="background-color: ' + colors['empty'] + '; position: absolute; left: ' + x * 51 + 'px; top: ' + y * 51 + 'px; width: 50px; height: 50px;">';
+		//html += '_';
 		html += '</div>';
 	});
 	
@@ -43,6 +77,11 @@ var data = require('./../game_specific/data.js');
 function displayError(text) {
 	renderMoves(data.get('moves'));
 	document.body.innerHTML += '<h3 style="position: absolute; bottom: 5px; color: red;">' + text + '</h3>';
+}
+
+function displayWinner(text) {
+	renderMoves(data.get('moves'));
+	document.body.innerHTML += '<h1 style="position: absolute; bottom: 5px; color: green;">' + text + '</h1>';
 }
 
 function runEvent(event, socket, obj) {

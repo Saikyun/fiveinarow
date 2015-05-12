@@ -1,22 +1,23 @@
 'use strict';
 
 var curry = require('sai_curry');
+var checkWinner = require('./check_winner.js');
 
-var pushMove = function(getMoves, setMoves, move) {
+var pushMove = function(getMoves, setMoves, socket, move) {
 	var moves = getMoves();
 	moves.push(move);
 	setMoves(moves);
-	console.log('the move', move, 'was made!');
-	console.log(getMoves());
 };
 
-module.exports = function(getMoves, setMoves) {
+module.exports = function(getMoves, setMoves, socket) {
 	return [
 		{
 			name: 'move',
-			func: curry(pushMove,
+			func: curry(
+				pushMove,
 				getMoves,
-				setMoves
+				setMoves,
+				socket
 			)
 		}
 	];
