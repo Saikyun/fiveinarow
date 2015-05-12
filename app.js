@@ -24,7 +24,7 @@ var io = socketio(server);
 var data = require('./game_specific/data.js');
 
 var sendMoves = function(socket, data, doSet) {
-	socket.emit('moves', { moves: data.get('moves') });
+	io.emit('moves', { moves: data.get('moves') });
 			
 	var result = require('./game_specific/check_winner.js')(data.get('moves'));
 	
@@ -35,7 +35,7 @@ var sendMoves = function(socket, data, doSet) {
 			console.log('player %n won!', result);
 		}
 		
-		socket.emit('winner', result);
+		io.emit('winner', result);
 		
 		var timeout = setTimeout(function() { if (doSet) {data.set('moves', []);} sendMoves(socket, data, true); clearTimeout(timeout); }, 5000);
 	}
