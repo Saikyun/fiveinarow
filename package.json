@@ -4,6 +4,7 @@
   "description": "Used to create events & rules for socket.io, and the rules can be used both client side and server side",
   "main": "app.js",
   "scripts": {
+    "prestart": "node_modules/browserify/bin/cmd.js client/main.js | node_modules/uglify-js/bin/uglifyjs > public/js/bundle.js",
     "start": "node app.js",
     "browserify": "node_modules/browserify/bin/cmd.js client/main.js | node_modules/uglify-js/bin/uglifyjs > public/js/bundle.js",
     "watch": "node_modules/watchify/bin/cmd.js client/main.js -o public/js/bundle.js --debug --verbose"
