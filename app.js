@@ -23,10 +23,15 @@ var io = socketio(server);
 
 var data = require('./game_specific/data.js');
 
-var sendMoves = function(socket, data, doSet) {
-	io.emit('moves', { moves: data.get('moves') });
+function getGame(player, games) {
+	return games.filter(function(game) { return game.player1 === player || game.player2 === player; })[0];
+}
+
+function sendMoves(socket, data) {
+	var game = getGame(socket.id, data.get('games'));
+	io.emit('moves', game);
 			
-	var result = require('./game_specific/check_winner.js')(data.get('moves'));
+	var result = require('./game_specific/check_winner.js')(game.moves);
 	
 	if (result !== false) {
 		if (result === -1) {
@@ -36,21 +41,63 @@ var sendMoves = function(socket, data, doSet) {
 		}
 		
 		io.emit('winner', result);
-		
-		var timeout = setTimeout(function() { if (doSet) {data.set('moves', []);} sendMoves(socket, data, true); clearTimeout(timeout); }, 5000);
 	}
 }
 
-io.on('connection', function(socket) {
-	console.log('someone connected', socket.id);
+var clients = {};
 
-	sendMoves(socket, data, false);
+function getPlayer(id, game) {
+	if (game.player1 === id) {
+		return 1;
+	} else if (game.player2 === id) {
+		return 2;
+	}
+	
+	throw new Error('player with id ' + id + ' doesn\'t belong in game ' + game);
+}
+
+function getOpponent(id, game) {
+	var player = getPlayer(id, game);
+	
+	return player === 1 ? 2 : 1;
+}
+
+io.on('connection', function(socket) {
+	clients[socket.id] = socket;
+	
+	console.log('someone connected', socket.id);
+	
+	var games = data.get('games');
+	var game = null;
+	
+	if (games.length === 0 || games[games.length - 1].player2 !== null) {
+		game = {
+			player1: socket.id,
+			player2: null,
+			moves: []
+		};
+		games.push(game);
+		data.set('games', games);
+	} else {
+		game = games[games.length - 1];
+		game.player2 = socket.id;
+		games[games.length - 1] = game;
+		data.set('games', games);
+	}
+
+	socket.emit('me', getPlayer(socket.id, game));
+	sendMoves(socket, data);
 	
 	var events = require('./game_specific/events.js')(
-		function() { return data.get('moves'); },
+		function(move) { move.player = getPlayer(socket.id, game); return move; },
+		function() { return getGame(socket.id, data.get('games')).moves; },
 		function(newMoves) {
-			data.set('moves', newMoves);
-			sendMoves(socket, data, true);
+			var games = data.get('games');
+			var game = getGame(socket.id, games);
+			game.moves = newMoves;
+			games[games.indexOf(game)] = game;
+			data.set('games', games);
+			sendMoves(socket, data);
 		},
 		socket
 	);
@@ -67,11 +114,25 @@ io.on('connection', function(socket) {
 			function error(message) {
 				socket.emit('error_message', message);
 			},
-			data
+			{size: data.get('size'), moves: game.moves}
 		);
 	});
 	
 	socket.on('disconnect', function() {
+		var games = data.get('games');
+		var game = getGame(socket.id, games);
+		
+		var opponent = getOpponent(socket.id, game);
+		var opponentClient = clients[game['player' + opponent]];
+		if (opponentClient) {
+			opponentClient.emit('notify', 'your opponent has disconnected.');
+		} else {
+			game['player' + opponent] = -1;			
+		}
 		console.log('someone disconnected', socket.id);
+		
+		game['player' + getPlayer(socket.id, game)] = -1;
+		games[games.indexOf(game)] = game;
+		data.set('games', games);
 	});
 });

@@ -16,17 +16,35 @@ socket.on('error_message', function(message) {
 	console.warn(message);
 });
 
+socket.on('notify', displayError);
+
+socket.on('me', function(player) {
+	data.set('me', player);
+})
+
 socket.on('moves', function(obj) {
 	data.set('moves', obj.moves);
-	renderMoves(data.get('moves'));
+
+	if (obj.player2 === null) {
+		displayWinner('waiting for opponent');
+	} else {
+		var moves = data.get('moves');
+		var player = moves.length === 0 || moves[moves.length - 1].player === 2 ? 1 : 2;
+	
+		if (data.get('me') === player) {
+			displayWinner('your turn');
+		} else {
+			displayWinner('your opponent\'s turn');
+		}
+	}
 });
 
 socket.on('winner', function(result) {
 	data.set('winner', result);
 	if (result === -1) {
-		displayWinner('it\'s a draw!!! game restarts in 5 seconds');
+		displayWinner('it\'s a draw!!! refresh to join a new game!');
 	} else {
-		displayWinner('the winner is player ' + colors['player' + result] + '!!!! game restarts in 5 seconds');		
+		displayWinner('the winner is player ' + colors['player' + result] + '!!!! refresh to start a new game!');		
 	}
 });
 
@@ -53,6 +71,9 @@ function renderMoves(moves) {
 		board[move.y * size.width + move.x] = move;
 	});
 	
+	var player = moves.length === 0 || moves[moves.length - 1].player === 2 ? 1 : 2;
+
+	
 	board.forEach(function(move, i) {
 		if (move !== null) {
 			return;
@@ -60,9 +81,12 @@ function renderMoves(moves) {
 		
 		var x = i % size.width;
 		var y = Math.floor(i / size.width);
-		var player = moves.length === 0 || moves[moves.length - 1].player === 2 ? 1 : 2;
+		var onclick = '';
+		if (data.get('me') === player) {
+			onclick = 'onclick="makeMove(' + x + ', ' + y + ', ' + player + ');"';
+		}
 		
-		html += '<div onclick="makeMove(' + x + ', ' + y + ', ' + player + ');" style="background-color: ' + colors['empty'] + '; position: absolute; left: ' + x * 51 + 'px; top: ' + y * 51 + 'px; width: 50px; height: 50px;">';
+		html += '<div ' + onclick + ' style="background-color: ' + colors['empty'] + '; position: absolute; left: ' + x * 51 + 'px; top: ' + y * 51 + 'px; width: 50px; height: 50px;">';
 		//html += '_';
 		html += '</div>';
 	});
@@ -95,7 +119,7 @@ function displayWinner(text) {
 }
 
 function runEvent(event, socket, obj) {
-	if (test(rules[event], obj, data, displayError)) {
+	if (test(rules[event], obj, {moves: data.get('moves'), size: data.get('size')}, displayError)) {
 		socket.emit(event, obj);
 		return true;
 	}

@@ -1,7 +1,8 @@
 'use strict';
 
 var data = {
-	moves: [],
+	games: [
+	],
 	size: {
 		width: 3,
 		height: 3
@@ -10,6 +11,7 @@ var data = {
 
 function get(name) {
 	if (data.hasOwnProperty(name)) {
+//		console.log('getting', name, data[name]);
 		return data[name];
 	}
 	
@@ -17,6 +19,7 @@ function get(name) {
 }
 
 function set(name, value) {
+//	console.log('setting', name, value);
 	data[name] = value;
 }
 

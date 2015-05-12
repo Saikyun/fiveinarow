@@ -9,11 +9,12 @@ var pushMove = function(getMoves, setMoves, socket, move) {
 	setMoves(moves);
 };
 
-module.exports = function(getMoves, setMoves, socket) {
+module.exports = function(setPlayer, getMoves, setMoves, socket) {
 	return [
 		{
 			name: 'move',
-			func: curry(
+			before: setPlayer,
+			after: curry(
 				pushMove,
 				getMoves,
 				setMoves,

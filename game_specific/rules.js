@@ -81,6 +81,10 @@ function isNotSamePlayerAsLast(move, moves, error) {
 	return true;
 }
 
+function isMe(move, player) {
+	return move.player === player;
+}
+
 module.exports = {
 	move: [
 		curry(standard, isSet),
