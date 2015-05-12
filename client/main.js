@@ -73,7 +73,13 @@ function renderMoves(moves) {
 function makeMove(x, y, player) {
 	var move = {x: x, y: y, player: player};
 	
-	runEvent('move', socket, move);
+	if (runEvent('move', socket, move)) {
+		var moves = data.get('moves');
+		moves.push(obj);
+		data.set('moves', moves);
+		
+		renderMoves(moves);
+	}
 }
 
 var data = require('./../game_specific/data.js');
@@ -91,7 +97,10 @@ function displayWinner(text) {
 function runEvent(event, socket, obj) {
 	if (test(rules[event], obj, data, displayError)) {
 		socket.emit(event, obj);
+		return true;
 	}
+	
+	return false;
 }
 
 window.makeMove = makeMove;
