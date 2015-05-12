@@ -27,9 +27,19 @@ function getGame(player, games) {
 	return games.filter(function(game) { return game.player1 === player || game.player2 === player; })[0];
 }
 
+function emitToPlayers(game, event, obj) {
+	if (clients[game.player1]) {
+		clients[game.player1].emit(event, obj);	
+	}
+	
+	if (clients[game.player2]) {
+		clients[game.player2].emit(event, obj);	
+	}
+}
+
 function sendMoves(socket, data) {
 	var game = getGame(socket.id, data.get('games'));
-	io.emit('moves', game);
+	emitToPlayers(game, 'moves', game);
 			
 	var result = require('./game_specific/check_winner.js')(game.moves);
 	
@@ -40,7 +50,7 @@ function sendMoves(socket, data) {
 			console.log('player %n won!', result);
 		}
 		
-		io.emit('winner', result);
+		emitToPlayers(game, 'winner', result);
 	}
 }
 
@@ -125,13 +135,13 @@ io.on('connection', function(socket) {
 		var opponent = getOpponent(socket.id, game);
 		var opponentClient = clients[game['player' + opponent]];
 		if (opponentClient) {
+			console.log('notified');
 			opponentClient.emit('notify', 'your opponent has disconnected.');
 		} else {
 			game['player' + opponent] = -1;			
 		}
 		console.log('someone disconnected', socket.id);
 		
-		game['player' + getPlayer(socket.id, game)] = -1;
 		games[games.indexOf(game)] = game;
 		data.set('games', games);
 	});

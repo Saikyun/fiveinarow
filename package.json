@@ -14,9 +14,9 @@
   "dependencies": {
     "browserify": "^10.1.3",
     "express": "^4.12.3",
-    "rule_checker": "file:rule_checker",
-    "sai_curry": "^1.0.0",
-    "sai_generic": "0.0.1",
+    "rule_checker": "latest",
+    "sai_curry": "latest",
+    "sai_generic": "latest",
     "socket.io": "latest",
     "socket.io-client": "latest",
     "uglify-js": "^2.4.21",
