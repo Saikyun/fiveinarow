@@ -23,7 +23,11 @@ socket.on('moves', function(obj) {
 
 socket.on('winner', function(result) {
 	data.set('winner', result);
-	displayWinner('the winner is player ' + colors['player' + result] + '!!!! game restarts in 5 seconds');
+	if (result === -1) {
+		displayWinner('it\'s a draw!!! game restarts in 5 seconds');
+	} else {
+		displayWinner('the winner is player ' + colors['player' + result] + '!!!! game restarts in 5 seconds');		
+	}
 });
 
 var colors = {

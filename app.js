@@ -28,10 +28,13 @@ var sendMoves = function(socket, data, doSet) {
 			
 	var result = require('./game_specific/check_winner.js')(data.get('moves'));
 	
-	if (result === -1) {
-		console.log('it\'s a draw!');
-	} else if (result !== false) {
-		console.log('player %n won!', result);
+	if (result !== false) {
+		if (result === -1) {
+			console.log('it\'s a draw!');
+		} else {
+			console.log('player %n won!', result);
+		}
+		
 		socket.emit('winner', result);
 		
 		var timeout = setTimeout(function() { if (doSet) {data.set('moves', []);} sendMoves(socket, data, true); clearTimeout(timeout); }, 5000);
