@@ -1,40 +1,40 @@
 'use strict';
 
-function getPosition(xy) {
-	return xy.y * 3 + xy.x;
+function getPosition(xy, size) {
+	return xy.y * size.width + xy.x;
 }
 
-function getBoard(moves) {
+function getBoard(moves, size) {
 	var board = [];
 	
-	for (var i = 0; i < 9; i++) {
+	for (var i = 0; i < size.height * size.width; i++) {
 		board[i] = null;
 	}
 	
 	moves.forEach(function(move) {
-		board[getPosition(move)] = move.player;
+		board[getPosition(move, size)] = move.player;
 	});
 	
 	return board;
 }
 
-function checkWinner(moves) {
-	var board = getBoard(moves);
+function checkWinner(moves, size) {
+	var board = getBoard(moves, size);
 	
-	function getXY(position) {
-		return {x: position % 3, y: Math.floor(position / 3)};	
+	function getXY(position, size) {
+		return {x: position % size.width, y: Math.floor(position / size.width)};	
 	}
 	
 	function findLine(board, position, direction, steps) {
-		var xy = getXY(position);
+		var xy = getXY(position, size);
 		xy.x += direction.x * steps;
 		xy.y += direction.y * steps;
 		
-		if (xy.x > 2 || xy.y > 2 || xy.x < 0 || xy.y < 0) {
+		if (xy.x >= size.width || xy.y >= size.height || xy.x < 0 || xy.y < 0) {
 			return steps;
 		}
 		
-		if (board[getPosition(xy)] !== board[position]) {
+		if (board[getPosition(xy, size)] !== board[position]) {
 			return steps;
 		}
 		
@@ -61,7 +61,7 @@ function checkWinner(moves) {
 			});	
 	});
 	
-	var winningLines = lines.filter(function(line) { return line.length >= 3; });
+	var winningLines = lines.filter(function(line) { return line.length >= size.lengthToWin; });
 	
 	if (winningLines.length > 0) {
 		return winningLines[0].player;	

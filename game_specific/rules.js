@@ -64,8 +64,8 @@ function isUniqueMove(move, moves, error) {
 }
 
 var checkWinner = require('./check_winner.js');
-function noWinner(move, moves, error) {
-	return checkWinner(moves) === false;
+function noWinner(move, moves, size, error) {
+	return checkWinner(moves, size) === false;
 }
 
 function isNotSamePlayerAsLast(move, moves, error) {
@@ -88,7 +88,7 @@ function isMe(move, player) {
 module.exports = {
 	move: [
 		curry(standard, isSet),
-		{test: noWinner, params: 'moves'},
+		{test: noWinner, params: ['moves', 'size']},
 		areAttrsSet(['x', 'y', 'player']),
 		curry(standard, xyLowerThanZero),
 		{test: xyHigherThanLimit, params: 'size'},

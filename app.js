@@ -41,7 +41,7 @@ function sendMoves(socket, data) {
 	var game = getGame(socket.id, data.get('games'));
 	emitToPlayers(game, 'moves', game);
 			
-	var result = require('./game_specific/check_winner.js')(game.moves);
+	var result = require('./game_specific/check_winner.js')(game.moves, data.get('size'));
 	
 	if (result !== false) {
 		if (result === -1) {
