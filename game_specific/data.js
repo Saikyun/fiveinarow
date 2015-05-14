@@ -4,9 +4,9 @@ var data = {
 	games: [
 	],
 	size: {
-		width: 7,
-		height: 7,
-		lengthToWin: 4
+		width: 10,
+		height: 10,
+		lengthToWin: 5
 	}
 };
 
