@@ -81,10 +81,26 @@ function isNotSamePlayerAsLast(move, moves, error) {
 	return true;
 }
 
-function isMe(move, player) {
-	return move.player === player;
+module.exports = {
+	move:
+		function moveRules(move, data, error) {
+			if (!(
+				standard(isSet, move, error) &&
+				noWinner(move, data.moves, data.size, error) &&
+				areAttrsSet(['x', 'y', 'player'])(move, error) &&
+				standard(xyLowerThanZero, move, error) &&
+				xyHigherThanLimit(move, data.size) &&
+				isUniqueMove(move, data.moves) &&
+				isNotSamePlayerAsLast(move, data.moves)
+			)) {
+				return false;
+			}
+			
+			return true;
+	}
 }
 
+/*
 module.exports = {
 	move: [
 		curry(standard, isSet),
@@ -96,3 +112,4 @@ module.exports = {
 		{test: isNotSamePlayerAsLast, params: 'moves'}
 	]
 };
+*/
